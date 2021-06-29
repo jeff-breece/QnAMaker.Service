@@ -9,5 +9,7 @@ namespace QnAMaker.Service.Models
         public string id { get; set; }
         public string endpointKeyVar { get; set; }
         public string kbId { get; set; }
+
+        public string endPoint { get; set; }
     }
 }

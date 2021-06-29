@@ -41,17 +41,14 @@ namespace QnAMaker.Service
                 string endpointKeyVar = clientReferenceObject.endpointKeyVar;
                 string kbIdVar = clientReferenceObject.kbId;
                 string uri = string.Empty;
-                
-                string endpointVar = "https://sibte-textanalytics.cognitiveservices.azure.com/qnamaker";
-                // https://sibte-textanalytics.cognitiveservices.azure.com/qnamaker/v5.0-preview.2/knowledgebases/bf3d01c6-0f2c-40ff-8824-5e702bee8adf/generateAnswer
-                if (questionPayload.question.Equals("Luis?"))
+                string endpointVar = clientReferenceObject.endPoint;
+
+                if (questionPayload.question.Equals("Luis?")) // ToDo: Remove this - here for the cross subsription/version demo
                 {
-                    endpointVar = "https://qnamakerproof.azurewebsites.net/qnamaker";
                     uri = endpointVar + "/knowledgebases/" + kbIdVar + "/generateAnswer";
                 }
                 else
                 {
-                    endpointVar = "https://sibte-textanalytics.cognitiveservices.azure.com/qnamaker";
                     uri = endpointVar + "/v5.0-preview.2/knowledgebases/" + kbIdVar + "/generateAnswer";
                 }
                 string question = $"{{'question': '{questionPayload.question}','top': 1}}";
