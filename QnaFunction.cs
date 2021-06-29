@@ -19,9 +19,6 @@ namespace QnAMaker.Service
 {
     public static class QnaFunction
     {
-
-        private const string _endpointVar = "https://qnamakerproof.azurewebsites.net/qnamaker";
-
         [FunctionName("RequestAnswer")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
@@ -43,8 +40,20 @@ namespace QnAMaker.Service
                 var clientReferenceObject = customerLookupData.Where(p => p.id == questionPayload.id).First();
                 string endpointKeyVar = clientReferenceObject.endpointKeyVar;
                 string kbIdVar = clientReferenceObject.kbId;
+                string uri = string.Empty;
                 
-                var uri = _endpointVar + "/knowledgebases/" + kbIdVar + "/generateAnswer";
+                string endpointVar = "https://sibte-textanalytics.cognitiveservices.azure.com/qnamaker";
+                // https://sibte-textanalytics.cognitiveservices.azure.com/qnamaker/v5.0-preview.2/knowledgebases/bf3d01c6-0f2c-40ff-8824-5e702bee8adf/generateAnswer
+                if (questionPayload.question.Equals("Luis?"))
+                {
+                    endpointVar = "https://qnamakerproof.azurewebsites.net/qnamaker";
+                    uri = endpointVar + "/knowledgebases/" + kbIdVar + "/generateAnswer";
+                }
+                else
+                {
+                    endpointVar = "https://sibte-textanalytics.cognitiveservices.azure.com/qnamaker";
+                    uri = endpointVar + "/v5.0-preview.2/knowledgebases/" + kbIdVar + "/generateAnswer";
+                }
                 string question = $"{{'question': '{questionPayload.question}','top': 1}}";
                 try
                 {
@@ -54,7 +63,12 @@ namespace QnAMaker.Service
                         request.Method = HttpMethod.Post;
                         request.RequestUri = new Uri(uri);
                         request.Content = new StringContent(question, Encoding.UTF8, "application/json");
-                        request.Headers.Add("Authorization", "EndpointKey " + endpointKeyVar);
+                        if (questionPayload.question.Equals("Luis?"))
+                        {
+                            request.Headers.Add("Authorization", "EndpointKey " + endpointKeyVar);
+                        }
+                        else
+                            request.Headers.Add("Ocp-Apim-Subscription-Key", endpointKeyVar);
                         var response = client.SendAsync(request).Result;
                         var jsonResponse = response.Content.ReadAsStringAsync().Result;
                         qnaResponse = JsonConvert.DeserializeObject<ResponsePayload>(jsonResponse); 
