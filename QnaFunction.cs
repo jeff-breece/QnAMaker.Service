@@ -43,14 +43,11 @@ namespace QnAMaker.Service
                 string uri = string.Empty;
                 string endpointVar = clientReferenceObject.endPoint;
 
-                if (questionPayload.question.Equals("Luis?")) // ToDo: Remove this - here for the cross subsription/version demo
-                {
-                    uri = endpointVar + "/knowledgebases/" + kbIdVar + "/generateAnswer";
-                }
-                else
-                {
-                    uri = endpointVar + "/v5.0-preview.2/knowledgebases/" + kbIdVar + "/generateAnswer";
-                }
+                // Note for the old version of QnA Maker (pre 2021) use this URI structure
+                uri = endpointVar + "/knowledgebases/" + kbIdVar + "/generateAnswer";
+                // Note for the new version of QnA Maker (2021 public preview) use this URI structure
+                //uri = endpointVar + "/v5.0-preview.2/knowledgebases/" + kbIdVar + "/generateAnswer";
+                
                 string question = $"{{'question': '{questionPayload.question}','top': 1}}";
                 try
                 {
@@ -60,12 +57,10 @@ namespace QnAMaker.Service
                         request.Method = HttpMethod.Post;
                         request.RequestUri = new Uri(uri);
                         request.Content = new StringContent(question, Encoding.UTF8, "application/json");
-                        if (questionPayload.question.Equals("Luis?"))
-                        {
-                            request.Headers.Add("Authorization", "EndpointKey " + endpointKeyVar);
-                        }
-                        else
-                            request.Headers.Add("Ocp-Apim-Subscription-Key", endpointKeyVar);
+                        // Note for the old version of QnA Maker (pre 2021) use this header
+                        request.Headers.Add("Authorization", "EndpointKey " + endpointKeyVar);
+                        // Note for the new version of QnA Maker (2021 public preview) use this header
+                        // request.Headers.Add("Ocp-Apim-Subscription-Key", endpointKeyVar);
                         var response = client.SendAsync(request).Result;
                         var jsonResponse = response.Content.ReadAsStringAsync().Result;
                         qnaResponse = JsonConvert.DeserializeObject<ResponsePayload>(jsonResponse); 
